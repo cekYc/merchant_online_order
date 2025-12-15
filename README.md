@@ -1,4 +1,4 @@
-# 🌯 Tavux Dürüm - Online Sipariş Sistemi
+# Tavux Dürüm - Online Sipariş Sistemi
 
 Modern, gerçek zamanlı dürümcü sipariş ve yönetim sistemi.
 
@@ -7,7 +7,7 @@ Modern, gerçek zamanlı dürümcü sipariş ve yönetim sistemi.
 ![SQLite](https://img.shields.io/badge/SQLite-3-orange)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4-black)
 
-## 📋 İçindekiler
+## İçindekiler
 
 - [Özellikler](#-özellikler)
 - [Kurulum](#-kurulum)
@@ -16,21 +16,21 @@ Modern, gerçek zamanlı dürümcü sipariş ve yönetim sistemi.
 - [Proje Yapısı](#-proje-yapısı)
 - [Teknolojiler](#-teknolojiler)
 
-## ✨ Özellikler
+## Özellikler
 
-### 👤 Müşteri Paneli
+### Müşteri Paneli
 - Kullanıcı kaydı (ad, soyad, telefon, adres)
 - Kategorilere göre menü görüntüleme
 - Sepete ürün ekleme/çıkarma
 - 3 farklı ödeme seçeneği:
-  - 💵 Kapıda Nakit
-  - 💳 Kapıda Kart
-  - 📱 Online Ödeme
+  - Kapıda Nakit
+  - Kapıda Kart
+  - Online Ödeme
 - Sipariş geçmişi ve takibi
 - Sipariş iptali (yola çıkmadan önce)
 - Mobil uyumlu tasarım
 
-### 🔧 Admin/Tezgah Paneli
+### Admin/Tezgah Paneli
 - Anlık sipariş bildirimi (ses + masaüstü)
 - Sipariş durumu güncelleme
 - Sipariş ID kopyalama (kurye için)
@@ -45,17 +45,17 @@ Modern, gerçek zamanlı dürümcü sipariş ve yönetim sistemi.
   - Emoji ile kategori simgesi
   - Ürünlü kategori silme koruması
 
-### 🛵 Kurye Paneli
+### Kurye Paneli
 - Sipariş ID ile arama
 - Sipariş detaylarını görüntüleme
 - Teslimat onaylama
 
-### ⚡ Gerçek Zamanlı
+### Gerçek Zamanlı
 - Socket.io ile anlık güncellemeler
 - Yeni sipariş bildirimi
 - Durum değişikliği senkronizasyonu
 
-## 🚀 Kurulum
+## Kurulum
 
 ### Gereksinimler
 - Node.js 18+
@@ -93,28 +93,28 @@ cd client
 npm run dev
 ```
 
-## 💻 Kullanım
+## Kullanım
 
 ### Erişim Linkleri
 
 | Panel | URL | Açıklama |
 |-------|-----|----------|
-| 👤 Müşteri | http://localhost:5173 | Sipariş verme |
-| 🔧 Admin | http://localhost:5173/admin | Sipariş ve menü yönetimi |
-| 🛵 Kurye | http://localhost:5173/kurye | Teslimat takibi |
+| Müşteri | http://localhost:5173 | Sipariş verme |
+| Admin | http://localhost:5173/admin | Sipariş ve menü yönetimi |
+| Kurye | http://localhost:5173/kurye | Teslimat takibi |
 
 ### Sipariş Durumları
 
 | Durum | Açıklama |
 |-------|----------|
-| 🟡 Yeni Sipariş | Sipariş alındı, onay bekliyor |
-| 🔵 Hazırlanıyor | Sipariş hazırlanıyor |
-| 🟣 Hazır | Sipariş hazır, kurye bekliyor |
-| 🟠 Yolda | Kurye yola çıktı |
-| 🟢 Teslim Edildi | Sipariş teslim edildi |
-| 🔴 İptal | Sipariş iptal edildi |
+| Yeni Sipariş | Sipariş alındı, onay bekliyor |
+| Hazırlanıyor | Sipariş hazırlanıyor |
+| Hazır | Sipariş hazır, kurye bekliyor |
+| Yolda | Kurye yola çıktı |
+| Teslim Edildi | Sipariş teslim edildi |
+| İptal | Sipariş iptal edildi |
 
-## 📡 API Dokümantasyonu
+## API Dokümantasyonu
 
 ### Genel Endpointler
 
@@ -161,7 +161,7 @@ DELETE /api/admin/categories/:id # Kategori sil
 GET /api/courier/order/:shortId  # Kısa ID ile sipariş ara
 ```
 
-## 📁 Proje Yapısı
+## Proje Yapısı
 
 ```
 tavux/
@@ -192,7 +192,7 @@ tavux/
 └── README.md
 ```
 
-## 🛠 Teknolojiler
+## Teknolojiler
 
 ### Frontend
 - **React 18** - UI Framework
@@ -213,7 +213,7 @@ tavux/
 ### Veritabanı
 - **SQLite** - Hafif, dosya tabanlı veritabanı
 
-## 📱 Ekran Görüntüleri
+## Ekran Görüntüleri
 
 ### Müşteri Arayüzü
 - Hoş geldiniz ekranı ve menü
@@ -230,14 +230,14 @@ tavux/
 - ID ile sipariş arama
 - Teslimat onaylama
 
-## 📄 Lisans
+## Lisans
 
 MIT License
 
-## 👨‍💻 Geliştirici
+## Geliştirici
 
 Eray Çiçek
 
 ---
 
-**Afiyet olsun! 🌯**
+**Afiyet olsun!**
