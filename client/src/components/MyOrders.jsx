@@ -119,12 +119,13 @@ export default function MyOrders() {
   }
 
   const formatTime = (dateString) => {
-    const date = new Date(dateString)
+    // SQLite UTC olarak kaydediyor, Z ekleyerek UTC olarak parse et
+    const date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z')
     return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
   }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z')
     return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
   }
 
