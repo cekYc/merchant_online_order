@@ -1,4 +1,4 @@
-# Tavux Dürüm - Online Sipariş Sistemi
+# Dürüm - Online Sipariş Sistemi
 
 Modern, gerçek zamanlı dürümcü sipariş ve yönetim sistemi.
 
