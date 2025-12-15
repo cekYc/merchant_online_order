@@ -94,6 +94,10 @@ cd client && npm install && cd ..
 3. Uygulamayi baslatin:
 ```bash
 npm run dev
+
+ayrı bir terminalde
+cd server
+node index.js
 ```
 
 Bu komut hem server'i (port 3001) hem client'i (port 5173) ayni anda baslatir.
@@ -106,7 +110,7 @@ Bu komut hem server'i (port 3001) hem client'i (port 5173) ayni anda baslatir.
 |-------|-----|----------|
 | Musteri | http://localhost:5173 | Siparis verme |
 | Admin | http://localhost:5173/admin | Siparis ve menu yonetimi |
-| Kurye | http://localhost:5173/kurye | Teslimat takibi |
+| Kurye | http://localhost:5173/courier | Teslimat takibi |
 
 ### Varsayilan Admin Girisi
 - Kullanici Adi: admin

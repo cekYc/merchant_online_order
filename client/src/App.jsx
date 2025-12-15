@@ -17,8 +17,22 @@ function App() {
     const savedCustomer = localStorage.getItem('esnaf-customer')
     const savedToken = localStorage.getItem('esnaf-token')
     
-    if (savedCart) setCart(JSON.parse(savedCart))
-    if (savedCustomer) setCustomer(JSON.parse(savedCustomer))
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart))
+      } catch (e) {
+        localStorage.removeItem('esnaf-cart')
+        setCart([])
+      }
+    }
+    if (savedCustomer) {
+      try {
+        setCustomer(JSON.parse(savedCustomer))
+      } catch (e) {
+        localStorage.removeItem('esnaf-customer')
+        setCustomer(null)
+      }
+    }
     if (savedToken) setCustomerToken(savedToken)
   }, [])
 
