@@ -12,8 +12,8 @@ function App() {
 
   // Load cart and customer from localStorage
   useEffect(() => {
-    const savedCart = localStorage.getItem('tavux-cart')
-    const savedCustomer = localStorage.getItem('tavux-customer')
+    const savedCart = localStorage.getItem('esnaf-cart')
+    const savedCustomer = localStorage.getItem('esnaf-customer')
     
     if (savedCart) setCart(JSON.parse(savedCart))
     if (savedCustomer) setCustomer(JSON.parse(savedCustomer))
@@ -21,13 +21,13 @@ function App() {
 
   // Save cart to localStorage
   useEffect(() => {
-    localStorage.setItem('tavux-cart', JSON.stringify(cart))
+    localStorage.setItem('esnaf-cart', JSON.stringify(cart))
   }, [cart])
 
   // Save customer to localStorage
   useEffect(() => {
     if (customer) {
-      localStorage.setItem('tavux-customer', JSON.stringify(customer))
+      localStorage.setItem('esnaf-customer', JSON.stringify(customer))
     }
   }, [customer])
 
@@ -59,6 +59,11 @@ function App() {
     setCart([])
   }
 
+  const logout = () => {
+    setCustomer(null)
+    localStorage.removeItem('esnaf-customer')
+  }
+
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -71,7 +76,8 @@ function App() {
       cartTotal,
       cartCount,
       customer,
-      setCustomer
+      setCustomer,
+      logout
     }}>
       <Routes>
         <Route path="/*" element={<CustomerApp />} />

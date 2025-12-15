@@ -45,12 +45,21 @@ export default function Checkout() {
         })
       })
 
-      if (!res.ok) throw new Error('Sipariş gönderilemedi')
+      if (!res.ok) {
+        const errorData = await res.json()
+        if (errorData.error?.includes('Müşteri bulunamadı')) {
+          // Clear customer from localStorage and redirect to register
+          localStorage.removeItem('esnaf-customer')
+          window.location.href = '/register'
+          return
+        }
+        throw new Error(errorData.error || 'Sipariş gönderilemedi')
+      }
 
       clearCart()
       navigate('/success')
     } catch (err) {
-      setError('Sipariş gönderilemedi. Lütfen tekrar deneyin.')
+      setError(err.message || 'Sipariş gönderilemedi. Lütfen tekrar deneyin.')
     } finally {
       setLoading(false)
     }

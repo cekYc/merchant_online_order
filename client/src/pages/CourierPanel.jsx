@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { io } from 'socket.io-client'
 import { 
   Phone, MapPin, Clock, CheckCircle, Package, 
-  Truck, Search, CreditCard, Banknote, Smartphone
+  Truck, Search, CreditCard, Banknote, Smartphone, Lock, User, RefreshCw, LogOut
 } from 'lucide-react'
+import { AdminProvider, AdminContext } from '../contexts/AdminContext'
 
 const socket = io('http://localhost:3001')
 
@@ -13,7 +14,92 @@ const paymentLabels = {
   online: { label: 'Online Ödendi', icon: Smartphone, color: 'text-purple-600 bg-purple-50' }
 }
 
-export default function CourierPanel() {
+function CourierLogin() {
+  const { login } = useContext(AdminContext)
+  const [form, setForm] = useState({ username: '', password: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    if (!form.username || !form.password) {
+      setError('Kullanıcı adı ve şifre gerekli')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await login(form.username, form.password)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-600 to-orange-500 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Truck size={40} className="text-orange-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Kurye Girişi</h1>
+          <p className="text-gray-500 mt-1">Teslimat Paneli</p>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm mb-4">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Kullanıcı Adı</label>
+            <div className="relative">
+              <User size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                placeholder="admin"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
+            <div className="relative">
+              <Lock size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2"
+          >
+            {loading ? <RefreshCw size={20} className="animate-spin" /> : 'Giriş Yap'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function CourierDashboard() {
+  const { logout, authFetch } = useContext(AdminContext)
   const [orderId, setOrderId] = useState('')
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -64,9 +150,8 @@ export default function CourierPanel() {
     setSuccess('')
 
     try {
-      const res = await fetch(`/api/orders/${order.id}/status`, {
+      const res = await authFetch(`/api/orders/${order.id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'delivered' })
       })
 
@@ -115,11 +200,20 @@ export default function CourierPanel() {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-orange-500 text-white p-4 sticky top-0 z-40 shadow-lg">
-        <div className="max-w-lg mx-auto">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            🛵 Kurye Paneli
-          </h1>
-          <p className="text-orange-100 text-sm">Teslimat Takip Sistemi</p>
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              🛵 Kurye Paneli
+            </h1>
+            <p className="text-orange-100 text-sm">Teslimat Takip Sistemi</p>
+          </div>
+          <button
+            onClick={logout}
+            className="p-2 hover:bg-orange-600 rounded-lg transition"
+            title="Çıkış Yap"
+          >
+            <LogOut size={24} />
+          </button>
         </div>
       </header>
 
@@ -340,5 +434,34 @@ export default function CourierPanel() {
         )}
       </main>
     </div>
+  )
+}
+
+function CourierContent() {
+  const { isAuthenticated, loading } = useContext(AdminContext)
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-orange-500 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl animate-bounce">🛵</div>
+          <p className="mt-4 text-white">Yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return <CourierLogin />
+  }
+
+  return <CourierDashboard />
+}
+
+export default function CourierPanel() {
+  return (
+    <AdminProvider>
+      <CourierContent />
+    </AdminProvider>
   )
 }
