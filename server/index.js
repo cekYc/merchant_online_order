@@ -32,6 +32,14 @@ if (!existsSync(uploadsDir)) {
   mkdirSync(uploadsDir, { recursive: true });
 }
 
+// Mimetype'a gore guvenli uzanti eslestirmesi
+const mimeToExt = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp'
+};
+
 // Multer ayarları
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -39,7 +47,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-    const ext = file.originalname.split('.').pop();
+    // GUVENLIK: Uzantiyi kullanicidan degil, mimetype'dan al
+    const ext = mimeToExt[file.mimetype] || 'bin';
     cb(null, `${uniqueName}.${ext}`);
   }
 });
@@ -203,6 +212,39 @@ const authenticateAdmin = (req, res, next) => {
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Token geçersiz veya süresi dolmuş' });
+  }
+};
+
+// =============================================
+// CUSTOMER AUTH MIDDLEWARE
+// =============================================
+const authenticateCustomer = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Oturum açmanız gerekiyor' });
+  }
+  
+  const token = authHeader.split(' ')[1];
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Musteri token'i mi kontrol et
+    if (decoded.type !== 'customer') {
+      return res.status(401).json({ error: 'Geçersiz müşteri oturumu' });
+    }
+    
+    const customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(decoded.customerId);
+    
+    if (!customer) {
+      return res.status(401).json({ error: 'Müşteri bulunamadı' });
+    }
+    
+    req.customer = customer;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Oturum süresi dolmuş, lütfen tekrar giriş yapın' });
   }
 };
 
@@ -423,13 +465,21 @@ app.post('/api/auth/send-code', (req, res) => {
   const code = generateCode();
   const expiresAt = Date.now() + 5 * 60 * 1000; // 5 dakika geçerli
   
-  verificationCodes.set(phone, { code, expiresAt });
+  // Eski kodu varsa temizle (ayni numaraya tekrar istek)
+  if (verificationCodes.has(phone)) {
+    const oldData = verificationCodes.get(phone);
+    if (oldData.timeoutId) clearTimeout(oldData.timeoutId);
+  }
+  
+  // GUVENLIK: 5 dakika sonra otomatik temizlik (Memory Leak onleme)
+  const timeoutId = setTimeout(() => {
+    verificationCodes.delete(phone);
+  }, 5 * 60 * 1000);
+  
+  verificationCodes.set(phone, { code, expiresAt, timeoutId });
   
   // SMS simülasyonu - gerçek uygulamada Twilio/Netgsm kullanılır
-  console.log(`\n📱 SMS GÖNDERİLDİ`);
-  console.log(`   Telefon: ${phone}`);
-  console.log(`   Doğrulama Kodu: ${code}`);
-  console.log(`   Geçerlilik: 5 dakika\n`);
+  console.log(`\n[SMS] Telefon: ${phone} | Kod: ${code} | Gecerlilik: 5 dk\n`);
   
   // Müşterinin kayıtlı olup olmadığını kontrol et
   const customer = db.prepare('SELECT * FROM customers WHERE phone = ?').get(phone);
@@ -466,15 +516,27 @@ app.post('/api/auth/verify-code', (req, res) => {
     return res.status(400).json({ error: 'Yanlış doğrulama kodu' });
   }
   
-  // Kod doğru, temizle
+  // Kod doğru, timeout'u temizle ve sil
+  if (stored.timeoutId) clearTimeout(stored.timeoutId);
   verificationCodes.delete(phone);
   
   // Müşteriyi getir
   const customer = db.prepare('SELECT * FROM customers WHERE phone = ?').get(phone);
   
+  // GUVENLIK: Musteriye de JWT token ver
+  let customerToken = null;
+  if (customer) {
+    customerToken = jwt.sign(
+      { customerId: customer.id, phone: customer.phone, type: 'customer' },
+      JWT_SECRET,
+      { expiresIn: '7d' } // Musteri tokeni 7 gun gecerli
+    );
+  }
+  
   res.json({ 
     success: true, 
     customer,
+    customerToken,
     isRegistered: !!customer
   });
 });
@@ -506,7 +568,14 @@ app.post('/api/auth/register', (req, res) => {
     customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(id);
   }
   
-  res.json(customer);
+  // GUVENLIK: Kayit/guncelleme sonrasi da token ver
+  const customerToken = jwt.sign(
+    { customerId: customer.id, phone: customer.phone, type: 'customer' },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+  
+  res.json({ ...customer, customerToken });
 });
 
 // Legacy auth endpoint (keep for compatibility)
@@ -546,18 +615,15 @@ app.get('/api/customers/:phone', (req, res) => {
   }
 });
 
-// Create order
-app.post('/api/orders', (req, res) => {
-  const { customerId, items, totalAmount, paymentMethod, note } = req.body;
+// Create order - GUVENLIK: Musteri auth ile korumali
+app.post('/api/orders', authenticateCustomer, (req, res) => {
+  const { items, totalAmount, paymentMethod, note } = req.body;
   
-  if (!customerId || !items || !totalAmount || !paymentMethod) {
+  // customerId artik token'dan geliyor, body'den degil
+  const customerId = req.customer.id;
+  
+  if (!items || !totalAmount || !paymentMethod) {
     return res.status(400).json({ error: 'Eksik bilgi' });
-  }
-
-  // Check if customer exists
-  const customerExists = db.prepare('SELECT id FROM customers WHERE id = ?').get(customerId);
-  if (!customerExists) {
-    return res.status(400).json({ error: 'Müşteri bulunamadı. Lütfen tekrar giriş yapın.' });
   }
 
   const id = uuidv4();

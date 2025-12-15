@@ -4,7 +4,7 @@ import { Phone, MapPin, ArrowRight, MessageSquare, LogIn, UserPlus, RefreshCw } 
 import { CartContext } from '../App'
 
 export default function Register() {
-  const { customer, setCustomer } = useContext(CartContext)
+  const { customer, setCustomer, setCustomerToken } = useContext(CartContext)
   const navigate = useNavigate()
   const location = useLocation()
   const redirectTo = location.state?.redirectTo || '/'
@@ -126,6 +126,11 @@ export default function Register() {
       
       if (!registerRes.ok) {
         throw new Error(registerData.error || 'Kayıt başarısız')
+      }
+
+      // Token'ı kaydet
+      if (registerData.customerToken) {
+        setCustomerToken(registerData.customerToken)
       }
 
       setCustomer(registerData)

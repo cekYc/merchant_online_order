@@ -4,7 +4,7 @@ import { CreditCard, Banknote, MapPin, Phone, User, FileText, Smartphone, Truck 
 import { CartContext } from '../App'
 
 export default function Checkout() {
-  const { cart, cartTotal, customer, clearCart } = useContext(CartContext)
+  const { cart, cartTotal, customer, clearCart, customerToken } = useContext(CartContext)
   const navigate = useNavigate()
   
   const [paymentMethod, setPaymentMethod] = useState('door_cash')
@@ -29,9 +29,11 @@ export default function Checkout() {
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${customerToken}`
+        },
         body: JSON.stringify({
-          customerId: customer.id,
           items: cart.map(item => ({
             id: item.id,
             name: item.name,

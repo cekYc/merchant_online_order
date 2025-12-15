@@ -9,14 +9,17 @@ export const CartContext = createContext()
 function App() {
   const [cart, setCart] = useState([])
   const [customer, setCustomer] = useState(null)
+  const [customerToken, setCustomerToken] = useState(null)
 
-  // Load cart and customer from localStorage
+  // Load cart, customer and token from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('esnaf-cart')
     const savedCustomer = localStorage.getItem('esnaf-customer')
+    const savedToken = localStorage.getItem('esnaf-token')
     
     if (savedCart) setCart(JSON.parse(savedCart))
     if (savedCustomer) setCustomer(JSON.parse(savedCustomer))
+    if (savedToken) setCustomerToken(savedToken)
   }, [])
 
   // Save cart to localStorage
@@ -30,6 +33,13 @@ function App() {
       localStorage.setItem('esnaf-customer', JSON.stringify(customer))
     }
   }, [customer])
+
+  // Save token to localStorage
+  useEffect(() => {
+    if (customerToken) {
+      localStorage.setItem('esnaf-token', customerToken)
+    }
+  }, [customerToken])
 
   const addToCart = (item) => {
     setCart(prev => {
@@ -61,7 +71,9 @@ function App() {
 
   const logout = () => {
     setCustomer(null)
+    setCustomerToken(null)
     localStorage.removeItem('esnaf-customer')
+    localStorage.removeItem('esnaf-token')
   }
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
@@ -77,6 +89,8 @@ function App() {
       cartCount,
       customer,
       setCustomer,
+      customerToken,
+      setCustomerToken,
       logout
     }}>
       <Routes>

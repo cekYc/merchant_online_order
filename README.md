@@ -62,9 +62,13 @@ Modern, gercek zamanli durumcu siparis ve yonetim sistemi.
 
 ### Guvenlik Ozellikleri
 - JWT (JSON Web Token) tabanli kimlik dogrulama
+  - Admin token suresi: 24 saat
+  - Musteri token suresi: 7 gun
 - Bcrypt ile sifre hashleme
 - Tum admin endpoint'leri korumali
-- Token suresi: 24 saat
+- Musteri siparisleri JWT ile korumali (kimlik taklidi engellendi)
+- Guvenli dosya yukleme (mimetype tabanli uzanti dogrulama)
+- SMS dogrulama kodlari 5 dakika sonra otomatik silinir
 - Yetkisiz erisim engelleme
 
 ## Kurulum
@@ -152,10 +156,10 @@ POST /api/auth/register     # Musteri kayit/guncelleme
 ### Siparis Endpointleri
 
 ```
-GET  /api/orders            # Tum siparisler (Auth gerekli)
-POST /api/orders            # Yeni siparis olustur
+GET  /api/orders            # Tum siparisler (Admin Auth gerekli)
+POST /api/orders            # Yeni siparis olustur (Musteri Auth gerekli)
 GET  /api/orders/:id        # Siparis detayi (Public - kurye icin)
-PATCH /api/orders/:id/status # Durum guncelle (Auth gerekli)
+PATCH /api/orders/:id/status # Durum guncelle (Admin Auth gerekli)
 PATCH /api/orders/:id/cancel # Siparis iptal (musteri)
 ```
 

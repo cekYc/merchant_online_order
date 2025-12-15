@@ -4,7 +4,7 @@ import { Phone, ArrowRight, MessageSquare, LogIn, RefreshCw } from 'lucide-react
 import { CartContext } from '../App'
 
 export default function Login() {
-  const { customer, setCustomer } = useContext(CartContext)
+  const { customer, setCustomer, setCustomerToken } = useContext(CartContext)
   const navigate = useNavigate()
   const location = useLocation()
   const redirectTo = location.state?.redirectTo || '/'
@@ -101,6 +101,9 @@ export default function Login() {
 
       if (data.customer) {
         setCustomer(data.customer)
+        if (data.customerToken) {
+          setCustomerToken(data.customerToken)
+        }
         navigate(redirectTo)
       } else {
         setError('Kullanıcı bulunamadı')
