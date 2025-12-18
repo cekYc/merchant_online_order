@@ -556,17 +556,17 @@ export default function AdminDashboard() {
 
                       {/* Customer Info */}
                       <div className="p-4 border-b border-gray-700">
-                        <h3 className="font-bold text-lg mb-2">
+                        <h3 className="font-bold text-lg mb-2 text-black">
                           {order.firstName} {order.lastName}
                         </h3>
                         <div className="space-y-1 text-sm">
-                          <p className="flex items-center gap-2 text-gray-300">
+                          <p className="flex items-center gap-2 text-black">
                             <Phone size={14} className="text-primary-500" />
-                            <a href={`tel:${order.phone}`} className="hover:text-primary-500">
+                            <a href={`tel:${order.phone}`} className="hover:text-primary-500 text-black">
                               {order.phone}
                             </a>
                           </p>
-                          <p className="flex items-start gap-2 text-gray-300">
+                          <p className="flex items-start gap-2 text-black">
                             <MapPin size={14} className="text-primary-500 mt-0.5 flex-shrink-0" />
                             {order.address}
                           </p>
@@ -578,13 +578,13 @@ export default function AdminDashboard() {
                         <h4 className="font-semibold text-sm text-gray-400 mb-2">SİPARİŞ</h4>
                         <div className="space-y-2">
                           {order.items.map((item, idx) => (
-                            <div key={idx} className="flex justify-between items-center">
-                              <span className="flex items-center gap-2">
-                                <span className="text-xl">{item.image}</span>
-                                <span>{item.name}</span>
-                                <span className="text-gray-500">x{item.quantity}</span>
+                            <div key={idx} className="flex justify-between items-center bg-gray-900 rounded-lg px-3 py-2">
+                              <span className="flex items-center gap-3">
+                                <span className="text-2xl">{item.image}</span>
+                                <span className="font-bold text-base text-white">{item.name}</span>
+                                <span className="text-primary-400 font-semibold text-base">x{item.quantity}</span>
                               </span>
-                              <span className="font-semibold">₺{item.price * item.quantity}</span>
+                              <span className="font-extrabold text-lg text-primary-500">₺{item.price * item.quantity}</span>
                             </div>
                           ))}
                         </div>
